@@ -1,0 +1,31 @@
+hub_code,name,country,type,congestion_index,geopolitical_risk
+CNSHA,Shanghai,China,port,0.55,0.2
+CNYTN,Shenzhen Yantian,China,port,0.4,0.2
+CNCKG,Chongqing Rail Terminal,China,rail_hub,0.25,0.2
+VNSGN,Ho Chi Minh (Cat Lai),Vietnam,port,0.45,0.1
+KRPUS,Busan,South Korea,port,0.3,0.15
+SGSIN,Singapore,Singapore,port,0.45,0.05
+LKCMB,Colombo,Sri Lanka,port,0.4,0.15
+INNSA,Nhava Sheva (Mumbai),India,port,0.5,0.1
+INMAA,Chennai,India,port,0.45,0.1
+AEJEA,Jebel Ali (Dubai),UAE,port,0.35,0.55
+AEDXB,Dubai Air Hub,UAE,air_hub,0.2,0.55
+XXBAB,Bab el-Mandeb / Red Sea,-,chokepoint,0.3,0.9
+XXHOR,Strait of Hormuz,-,chokepoint,0.3,0.8
+EGSUZ,Suez Canal,Egypt,chokepoint,0.35,0.6
+XXCGH,Cape of Good Hope,-,chokepoint,0.1,0.1
+PAPAN,Panama Canal,Panama,chokepoint,0.5,0.15
+KZKZ1,Kazakhstan-Russia Rail Corridor,-,rail_corridor,0.35,0.7
+NLRTM,Rotterdam,Netherlands,port,0.4,0.05
+DEHAM,Hamburg,Germany,port,0.45,0.05
+DEDUI,Duisburg Rail Terminal,Germany,rail_hub,0.3,0.05
+GBFXT,Felixstowe,United Kingdom,port,0.4,0.05
+ITGOA,Genoa,Italy,port,0.35,0.05
+USLAX,Los Angeles,USA,port,0.4,0.1
+USSEA,Seattle/Tacoma,USA,port,0.25,0.1
+USCHI,Chicago Rail Hub,USA,rail_hub,0.35,0.05
+USNYC,New York/New Jersey,USA,port,0.4,0.1
+USSAV,Savannah,USA,port,0.35,0.1
+MXLZC,Lazaro Cardenas,Mexico,port,0.3,0.4
+USORD,Chicago O'Hare Air Hub,USA,air_hub,0.2,0.05
+NLAMS,Amsterdam Schiphol Air Hub,Netherlands,air_hub,0.2,0.05

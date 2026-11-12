@@ -1,0 +1,41 @@
+shipment_id,origin,origin_name,destination,destination_name,ship_date,required_delivery_date,max_transit_days,cargo_type,perishable,hazardous,containers_feu,weight_tonnes,cargo_value_usd,budget_usd,priority,late_penalty_usd_per_day,peak_season,num_route_options
+SHP-001,CNSHA,Shanghai,NLRTM,Rotterdam,2026-12-21,2027-02-13,54,perishable_food,True,False,2,44.7,117500.0,34300.0,time,470,False,4
+SHP-002,CNSHA,Shanghai,USLAX,Los Angeles,2026-11-27,2026-12-27,30,perishable_food,True,False,3,54.0,171500.0,127600.0,time,686,False,5
+SHP-003,CNSHA,Shanghai,USNYC,New York/New Jersey,2026-12-27,2027-03-01,64,automotive_parts,False,False,10,190.1,1059600.0,68500.0,time,1589,False,4
+SHP-004,CNYTN,Shenzhen Yantian,GBFXT,Felixstowe,2027-01-12,2027-02-28,47,machinery,False,False,2,40.3,290000.0,39900.0,risk_averse,435,True,4
+SHP-005,INNSA,Nhava Sheva (Mumbai),NLRTM,Rotterdam,2027-01-03,2027-02-10,38,general_merchandise,False,False,3,46.8,215800.0,69000.0,balanced,324,False,5
+SHP-006,SGSIN,Singapore,DEHAM,Hamburg,2026-12-03,2027-01-21,49,general_merchandise,False,False,1,12.5,73600.0,21400.0,risk_averse,110,False,4
+SHP-007,VNSGN,Ho Chi Minh (Cat Lai),USLAX,Los Angeles,2026-12-18,2027-01-15,28,general_merchandise,False,False,8,125.3,664100.0,296600.0,risk_averse,996,False,4
+SHP-008,INMAA,Chennai,USNYC,New York/New Jersey,2026-11-22,2027-01-08,47,apparel,False,False,2,14.0,168600.0,52500.0,cost,253,False,4
+SHP-009,CNSHA,Shanghai,NLRTM,Rotterdam,2026-12-09,2027-01-26,48,chemicals,False,True,1,19.5,74900.0,27800.0,balanced,112,False,5
+SHP-010,CNSHA,Shanghai,USLAX,Los Angeles,2026-12-13,2027-01-05,23,machinery,False,False,8,187.9,1878100.0,410700.0,balanced,2817,False,5
+SHP-011,CNSHA,Shanghai,USNYC,New York/New Jersey,2026-12-03,2027-02-02,61,electronics,False,False,2,21.1,590200.0,12900.0,time,885,False,4
+SHP-012,CNYTN,Shenzhen Yantian,GBFXT,Felixstowe,2027-01-01,2027-02-23,53,perishable_food,True,False,4,73.9,123500.0,76900.0,time,494,False,4
+SHP-013,INNSA,Nhava Sheva (Mumbai),NLRTM,Rotterdam,2027-01-09,2027-02-24,46,general_merchandise,False,False,8,102.1,658000.0,149700.0,time,987,False,4
+SHP-014,SGSIN,Singapore,DEHAM,Hamburg,2026-12-12,2027-01-23,42,general_merchandise,False,False,1,17.9,48600.0,19500.0,risk_averse,73,False,5
+SHP-015,VNSGN,Ho Chi Minh (Cat Lai),USLAX,Los Angeles,2026-12-11,2027-01-07,27,electronics,False,False,4,46.9,1068200.0,250100.0,cost,1602,False,5
+SHP-016,INMAA,Chennai,USNYC,New York/New Jersey,2026-11-17,2027-01-03,47,apparel,False,False,8,73.4,962900.0,220000.0,risk_averse,1444,False,5
+SHP-017,CNSHA,Shanghai,NLRTM,Rotterdam,2026-12-14,2027-02-05,53,chemicals,False,True,8,148.4,776500.0,216400.0,risk_averse,1165,False,4
+SHP-018,CNSHA,Shanghai,USLAX,Los Angeles,2027-01-11,2027-02-13,33,apparel,False,False,5,46.5,319200.0,217000.0,risk_averse,479,True,5
+SHP-019,CNSHA,Shanghai,USNYC,New York/New Jersey,2026-12-14,2027-02-12,60,machinery,False,False,8,203.2,1804000.0,52400.0,time,2706,False,4
+SHP-020,CNYTN,Shenzhen Yantian,GBFXT,Felixstowe,2026-12-06,2027-01-23,48,apparel,False,False,3,22.0,181700.0,57000.0,risk_averse,273,False,4
+SHP-021,INNSA,Nhava Sheva (Mumbai),NLRTM,Rotterdam,2026-12-17,2027-01-24,38,general_merchandise,False,False,10,134.0,553800.0,178500.0,balanced,831,False,5
+SHP-022,SGSIN,Singapore,DEHAM,Hamburg,2026-11-20,2027-01-05,46,perishable_food,True,False,5,110.4,152300.0,218700.0,time,609,False,4
+SHP-023,VNSGN,Ho Chi Minh (Cat Lai),USLAX,Los Angeles,2026-12-15,2027-01-12,28,apparel,False,False,1,6.0,128000.0,45100.0,cost,192,False,5
+SHP-024,INMAA,Chennai,USNYC,New York/New Jersey,2027-01-06,2027-02-25,50,pharmaceuticals,True,False,3,18.1,1062900.0,113900.0,time,4252,False,4
+SHP-025,CNSHA,Shanghai,NLRTM,Rotterdam,2027-01-08,2027-03-08,59,chemicals,False,True,1,18.2,59600.0,23500.0,cost,89,False,4
+SHP-026,CNSHA,Shanghai,USLAX,Los Angeles,2026-11-25,2026-12-25,30,perishable_food,True,False,2,34.2,139800.0,72300.0,time,559,False,5
+SHP-027,CNSHA,Shanghai,USNYC,New York/New Jersey,2027-01-12,2027-03-11,58,chemicals,False,True,3,69.2,202300.0,20700.0,balanced,303,True,4
+SHP-028,CNYTN,Shenzhen Yantian,GBFXT,Felixstowe,2027-01-04,2027-02-25,52,general_merchandise,False,False,2,34.2,149700.0,45300.0,time,225,False,4
+SHP-029,INNSA,Nhava Sheva (Mumbai),NLRTM,Rotterdam,2026-11-25,2027-01-07,43,perishable_food,True,False,5,95.8,319800.0,97700.0,cost,1279,False,5
+SHP-030,SGSIN,Singapore,DEHAM,Hamburg,2026-12-10,2027-01-31,52,chemicals,False,True,2,36.3,157800.0,26400.0,risk_averse,237,False,4
+SHP-031,VNSGN,Ho Chi Minh (Cat Lai),USLAX,Los Angeles,2026-11-27,2026-12-28,31,general_merchandise,False,False,1,13.1,66900.0,50900.0,cost,100,False,5
+SHP-032,INMAA,Chennai,USNYC,New York/New Jersey,2026-12-30,2027-02-15,47,automotive_parts,False,False,4,80.1,519500.0,140800.0,cost,779,False,4
+SHP-033,CNSHA,Shanghai,NLRTM,Rotterdam,2026-11-26,2027-01-20,55,general_merchandise,False,False,10,123.0,418600.0,149300.0,risk_averse,628,False,5
+SHP-034,CNSHA,Shanghai,USLAX,Los Angeles,2026-12-12,2027-01-05,24,perishable_food,True,False,1,23.2,51600.0,47700.0,time,206,False,5
+SHP-035,CNSHA,Shanghai,USNYC,New York/New Jersey,2026-11-29,2027-01-29,61,electronics,False,False,2,16.8,1116900.0,16000.0,risk_averse,1675,False,4
+SHP-036,CNYTN,Shenzhen Yantian,GBFXT,Felixstowe,2026-12-17,2027-02-06,51,general_merchandise,False,False,2,30.4,141500.0,42300.0,balanced,212,False,4
+SHP-037,INNSA,Nhava Sheva (Mumbai),NLRTM,Rotterdam,2027-01-10,2027-02-19,40,general_merchandise,False,False,4,51.4,290900.0,61000.0,risk_averse,436,True,4
+SHP-038,SGSIN,Singapore,DEHAM,Hamburg,2026-12-06,2027-01-21,46,automotive_parts,False,False,1,17.0,165900.0,49300.0,cost,249,False,4
+SHP-039,VNSGN,Ho Chi Minh (Cat Lai),USLAX,Los Angeles,2026-11-21,2026-12-23,32,electronics,False,False,1,8.0,342400.0,51900.0,cost,514,False,5
+SHP-040,INMAA,Chennai,USNYC,New York/New Jersey,2026-11-27,2027-01-10,44,perishable_food,True,False,1,23.6,46700.0,30900.0,balanced,187,False,4
