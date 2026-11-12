@@ -199,6 +199,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  health: (signal?: AbortSignal) => request<{ status: string }>("/health", { signal }),
   listShipments: (signal?: AbortSignal) => request<ShipmentSummary[]>("/api/shipments", { signal }),
   getShipment: (id: string, signal?: AbortSignal) =>
     request<ShipmentDetail>(`/api/shipments/${encodeURIComponent(id)}`, { signal }),

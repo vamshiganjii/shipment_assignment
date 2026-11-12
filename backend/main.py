@@ -2,6 +2,7 @@
 
     uvicorn main:app --reload
 """
+import asyncio
 import logging
 import time
 from contextlib import asynccontextmanager
@@ -12,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api import api_router
 from core.config import get_settings
 from core.exceptions import register_exception_handlers
+from core.keep_alive import keep_alive
 from core.logging import configure_logging
 from services.shipment_service import get_shipment_service
 
@@ -23,7 +25,14 @@ logger = logging.getLogger("app")
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     get_shipment_service()  # load + validate the dataset at startup (fail fast)
+    pinger = (
+        asyncio.create_task(keep_alive(settings.keep_alive_url, settings.keep_alive_interval_s))
+        if settings.keep_alive_url
+        else None
+    )
     yield
+    if pinger:
+        pinger.cancel()
 
 
 def create_app() -> FastAPI:

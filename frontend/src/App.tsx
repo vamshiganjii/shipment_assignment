@@ -1,4 +1,4 @@
-import { AlertTriangle, Moon, Route as RouteIcon, Sun } from "lucide-react"
+import { AlertTriangle, Loader2, Moon, Route as RouteIcon, Sun } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
 import { AnswerCard } from "@/components/AnswerCard"
@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAsync } from "@/hooks/useAsync"
+import { useServerReady } from "@/hooks/useServerReady"
 import { api, type Priority, type RecommendRequest, type ShipmentDetail, type Weights } from "@/lib/api"
 import { GOALS } from "@/lib/plain"
 
@@ -98,10 +99,14 @@ export default function App() {
   )
   const [criteria, setCriteria] = useState<Criteria>()
 
-  const shipments = useAsync((s) => api.listShipments(s), [])
-  const presets = useAsync((s) => api.weightPresets(s), [])
-  const detail = useAsync((s) => api.getShipment(shipmentId!, s), [shipmentId], !!shipmentId)
-  const sensitivity = useAsync((s) => api.sensitivity(shipmentId!, s), [shipmentId], !!shipmentId)
+  // Free hosting sleeps when idle: wait for /health before loading any data
+  const { status: server, retry: retryServer } = useServerReady()
+  const ready = server === "ready"
+
+  const shipments = useAsync((s) => api.listShipments(s), [], ready)
+  const presets = useAsync((s) => api.weightPresets(s), [], ready)
+  const detail = useAsync((s) => api.getShipment(shipmentId!, s), [shipmentId], ready && !!shipmentId)
+  const sensitivity = useAsync((s) => api.sensitivity(shipmentId!, s), [shipmentId], ready && !!shipmentId)
 
   // default to the first shipment
   useEffect(() => {
@@ -129,7 +134,7 @@ export default function App() {
 
   // What each goal picks with the shipment's own limits. The goal cards always show these, so the
   // comparison stays visible; what-if limits only mark which of them still fit and which one is picked.
-  const baseline = useAsync((s) => fetchGoalPreviews({ shipment_id: shipmentId! }, s), [shipmentId], !!shipmentId)
+  const baseline = useAsync((s) => fetchGoalPreviews({ shipment_id: shipmentId! }, s), [shipmentId], ready && !!shipmentId)
   const previews =
     baseline.data && baseline.data.shipmentId === shipmentId ? baseline.data.previews : undefined
   const limits = currentDetail &&
@@ -138,7 +143,8 @@ export default function App() {
       budgetUsd: Number(criteria.budgetUsd) > 0 ? Number(criteria.budgetUsd) : currentDetail.budget_usd,
       overridden: Number(criteria.maxTransitDays) > 0 || Number(criteria.budgetUsd) > 0,
     }
-  const fatal = shipments.error ?? presets.error
+  const fatal =
+    server === "down" ? new Error("The server did not respond within 2 minutes.") : (shipments.error ?? presets.error)
 
   return (
     <div className="min-h-screen bg-background">
@@ -164,12 +170,28 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        {server === "waking" && (
+          <Alert className="mb-6" role="status" aria-live="polite">
+            <Loader2 className="animate-spin text-[var(--viz-series-1)]" />
+            <AlertTitle>Waking up the server…</AlertTitle>
+            <AlertDescription>
+              This demo runs on free hosting that sleeps when nobody is using it. Starting it usually takes under a
+              minute, and the page will load by itself.
+            </AlertDescription>
+          </Alert>
+        )}
         {fatal ? (
           <Alert>
             <AlertTriangle className="text-[var(--status-critical)]" />
             <AlertTitle>Backend unavailable</AlertTitle>
             <AlertDescription>
-              {fatal.message} Start it with <code className="font-mono">uvicorn main:app --reload</code> in the backend folder.
+              <p>
+                {fatal.message} Locally, start it with <code className="font-mono">uvicorn main:app --reload</code> in the
+                backend folder.
+              </p>
+              <Button variant="outline" size="sm" className="mt-2" onClick={retryServer}>
+                Try again
+              </Button>
             </AlertDescription>
           </Alert>
         ) : (
@@ -249,7 +271,7 @@ export default function App() {
             </TabsContent>
 
             <TabsContent value="evaluate">
-              <EvaluationView />
+              {ready ? <EvaluationView /> : <Skeleton className="h-80" />}
             </TabsContent>
           </Tabs>
         )}

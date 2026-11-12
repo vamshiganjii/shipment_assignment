@@ -71,7 +71,7 @@ pytest -q        # 25 tests: feasibility, Pareto, TOPSIS, fallback, sensitivity,
 | `route-advisor` (web app) | `VITE_API_URL` | the API's URL, e.g. `https://route-advisor-api.onrender.com`; redeploy after setting it |
 | `route-advisor-api` (API) | `CORS_ORIGINS` | the web app's URL, e.g. `https://route-advisor.onrender.com` |
 
-On the free plan the API sleeps after 15 minutes without requests, so the first request after a pause can take up to a minute. To keep it awake, point an uptime monitor (e.g. UptimeRobot, every 5 minutes) at the API's `/health` endpoint.
+On the free plan Render sleeps a service after 15 minutes without requests. The API prevents this itself: on Render it calls its own public `/health` URL every 5 minutes ([core/keep_alive.py](backend/core/keep_alive.py)), using the `RENDER_EXTERNAL_URL` that Render sets automatically. Locally this is off. Optional overrides: `KEEP_ALIVE_URL`, `KEEP_ALIVE_INTERVAL_S`.
 
 ---
 

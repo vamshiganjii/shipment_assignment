@@ -25,6 +25,13 @@ class Settings:
         )
     )
     log_level: str = field(default_factory=lambda: os.getenv("LOG_LEVEL", "INFO").upper())
+    # Self-ping URL to stop free hosting from sleeping. Empty = off (the default locally).
+    # On Render it defaults to <RENDER_EXTERNAL_URL>/health, which Render sets automatically.
+    keep_alive_url: str = field(
+        default_factory=lambda: os.getenv("KEEP_ALIVE_URL")
+        or (f"{os.environ['RENDER_EXTERNAL_URL'].rstrip('/')}/health" if os.getenv("RENDER_EXTERNAL_URL") else "")
+    )
+    keep_alive_interval_s: int = field(default_factory=lambda: int(os.getenv("KEEP_ALIVE_INTERVAL_S", "300")))
     # Sensitivity analysis defaults
     sensitivity_delta: float = 0.20          # +/-20% weight perturbation
     monte_carlo_samples: int = 300
