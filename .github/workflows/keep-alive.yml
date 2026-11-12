@@ -1,0 +1,19 @@
+# Pings the Render API every 5 minutes so the free instance does not go to sleep
+# (Render sleeps free services after 15 minutes without requests).
+name: Keep API awake
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # every 5 minutes (GitHub may start runs a few minutes late)
+  workflow_dispatch:         # allows a manual run from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /health
+        run: |
+          # A sleeping instance can take up to a minute to wake, so allow a long timeout and retry
+          curl --fail --silent --show-error --max-time 90 --retry 3 --retry-delay 10 \
+            https://shipment-project-5wyz.onrender.com/health

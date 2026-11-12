@@ -2,6 +2,10 @@
 
 Recommends the best shipment route by balancing **cost, transit time, delay risk and geopolitical/congestion risk**, and explains the decision in plain English.
 
+**Live demo: https://shipment-frontend-lhgw.onrender.com**  ·  API docs: https://shipment-project-5wyz.onrender.com/docs
+
+> Hosted on Render's free plan. If the page shows "Backend unavailable" or loads slowly, the API is waking up: wait about a minute and refresh.
+
 ![Route Advisor recommending a route for shipment SHP-008](docs/recommend.png)
 
 Each shipment has 3–5 route options made of legs (sea, rail, truck, air). The cheapest route often crosses a conflict zone, the fastest costs many times more, and the safest takes weeks longer. Route Advisor:
@@ -67,7 +71,7 @@ pytest -q        # 25 tests: feasibility, Pareto, TOPSIS, fallback, sensitivity,
 | `route-advisor` (web app) | `VITE_API_URL` | the API's URL, e.g. `https://route-advisor-api.onrender.com`; redeploy after setting it |
 | `route-advisor-api` (API) | `CORS_ORIGINS` | the web app's URL, e.g. `https://route-advisor.onrender.com` |
 
-On the free plan the API sleeps when idle, so the first request after a pause can take up to a minute.
+On the free plan the API sleeps after 15 minutes without requests, so the first request after a pause can take up to a minute. To keep it awake, point an uptime monitor (e.g. UptimeRobot, every 5 minutes) at the API's `/health` endpoint.
 
 ---
 
