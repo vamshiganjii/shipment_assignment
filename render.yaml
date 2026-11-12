@@ -1,0 +1,38 @@
+# Render Blueprint: creates the API and the web app in one step.
+# Render dashboard → New → Blueprint → pick this repo.
+#
+# Two values are asked for when the Blueprint is created (sync: false), because each
+# service needs the other's public URL. Leave them blank on the first run, then:
+#   1. copy the API URL   → route-advisor  → VITE_API_URL  → redeploy the web app
+#   2. copy the web URL   → route-advisor-api → CORS_ORIGINS (the API restarts itself)
+
+services:
+  # ---------------- Backend: FastAPI ----------------
+  - type: web
+    name: route-advisor-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS          # e.g. https://route-advisor.onrender.com (no trailing /)
+        sync: false
+
+  # ---------------- Frontend: React static site ----------------
+  - type: web
+    name: route-advisor
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: 24.11.0
+      - key: VITE_API_URL          # e.g. https://route-advisor-api.onrender.com (no trailing /)
+        sync: false

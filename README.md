@@ -58,6 +58,17 @@ cd backend
 pytest -q        # 25 tests: feasibility, Pareto, TOPSIS, fallback, sensitivity, every endpoint
 ```
 
+### 4. Deploy (Render)
+
+[render.yaml](render.yaml) creates both services: in Render choose **New → Blueprint** and pick this repo. Then link them:
+
+| Service | Variable | Value |
+|---|---|---|
+| `route-advisor` (web app) | `VITE_API_URL` | the API's URL, e.g. `https://route-advisor-api.onrender.com`; redeploy after setting it |
+| `route-advisor-api` (API) | `CORS_ORIGINS` | the web app's URL, e.g. `https://route-advisor.onrender.com` |
+
+On the free plan the API sleeps when idle, so the first request after a pause can take up to a minute.
+
 ---
 
 ## How a route is picked
