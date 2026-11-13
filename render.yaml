@@ -7,7 +7,7 @@
 #   2. copy the web URL   → route-advisor-api → CORS_ORIGINS (the API restarts itself)
 
 services:
-  # ---------------- Backend: FastAPI ----------------
+  # Backend: FastAPI
   - type: web
     name: route-advisor-api
     runtime: python
@@ -24,7 +24,7 @@ services:
       - key: CORS_ORIGINS          # e.g. https://route-advisor.onrender.com (no trailing /)
         sync: false
 
-  # ---------------- Frontend: React static site ----------------
+  # Frontend: React static site
   - type: web
     name: route-advisor
     runtime: static

@@ -1,4 +1,4 @@
-# ---------- Python (backend + data generator) ----------
+# Python (backend + data generator)
 venv/
 .venv/
 env/
@@ -11,16 +11,16 @@ __pycache__/
 htmlcov/
 *.egg-info/
 
-# ---------- Node / frontend (frontend/.gitignore covers the rest) ----------
+# Node / frontend (frontend/.gitignore covers the rest)
 node_modules/
 dist/
 
-# ---------- Secrets and local config ----------
+# Secrets and local config
 .env
 .env.*
 !.env.example
 
-# ---------- Editors and OS ----------
+# Editors and OS
 .vscode/*
 !.vscode/extensions.json
 .idea/
@@ -29,9 +29,12 @@ Thumbs.db
 desktop.ini
 *.swp
 
-# ---------- Logs ----------
+# Logs
 *.log
 
-# ---------- Project ----------
+# Project
 # The assignment brief belongs to the company that set it; keep it out of a public repo
 Aiqon_Take_Home_Assignment_5.pdf
+
+# Personal interview notes (not part of the submission)
+Interview_Guide.pdf

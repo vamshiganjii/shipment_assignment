@@ -1,27 +1,11 @@
-"""
-Synthetic shipment-route dataset generator (reproducible, seed 42).
+"""Builds the synthetic shipment dataset (seed 42, so the output is always the same).
 
-Run with the backend's Python (it uses the backend scoring engine to check each shipment):
+It imports the backend scoring engine, so run it from data/ with the backend venv:
     ../backend/venv/Scripts/python generate_synthetic_data.py
 
-Every shipment has 4-5 route options and its own deadline and budget, and is
-re-drawn until "lowest cost", "fastest" and "lowest risk" each recommend a
-different route (and "balanced" a fourth one where possible).
-
-Produces (in this folder):
-  shipments.csv  - one row per shipment (40 shipments)
-  routes.csv     - one row per route option (4-5 per shipment)
-  legs.csv       - one row per leg of each route
-  hubs.csv       - port / hub / chokepoint reference with risk indicators
-  dataset.json   - nested shipment -> routes -> legs (convenient system input)
-
-Calibration (public 2026 benchmarks, see DATA_README.md):
-  * Drewry WCI Apr-2026: Shanghai-Rotterdam ~$2,150/FEU, Shanghai-LA ~$2,930/FEU,
-    Shanghai-NY ~$3,560/FEU, Shanghai-Genoa ~$3,070/FEU.
-  * Sea-Intelligence GLP 2026: schedule reliability 56-62% (=> ~40% of sea
-    arrivals late), average delay of late arrivals 5.2-6.1 days.
-  * Cape of Good Hope diversion: +10-14 days vs Suez on Asia-Europe, ~15-25%
-    more bunker; Red Sea / Hormuz carry high geopolitical risk in 2026.
+Writes shipments.csv, routes.csv, legs.csv, hubs.csv and dataset.json.
+Prices and delay rates are roughly based on 2026 figures (Drewry WCI,
+Sea-Intelligence); sources are in DATA_README.md.
 """
 import csv
 import json
@@ -35,19 +19,14 @@ SEED = 42
 N_SHIPMENTS = 40
 OUT = Path(__file__).resolve().parent
 rng = random.Random(SEED)
-# Max war-risk surcharge per FEU on sea legs through conflict zones (scales with geo risk)
-WAR_RISK_SURCHARGE_MAX = 300  # in line with 2026 carrier war-risk surcharges
+WAR_RISK_SURCHARGE_MAX = 300  # USD per FEU, sea legs through conflict zones
 
-# The generator checks each shipment with the real recommender, so every goal
-# (lowest cost / fastest / lowest risk / balanced) leads to a different decision.
+# used to check that every shipment has a real trade-off between the goals
 sys.path.insert(0, str(OUT.parent / "backend"))
 from services.engine.scoring import WEIGHTS, check_feasibility, recommend  # noqa: E402
 
-# --------------------------------------------------------------------------
-# Hubs: congestion (0-1) and geopolitical risk (0-1) indicators
-# --------------------------------------------------------------------------
 HUBS = {
-    # code: (name, country, type, congestion, geopolitical)
+    # code: (name, country, type, congestion 0-1, geopolitical risk 0-1)
     "CNSHA": ("Shanghai", "China", "port", 0.55, 0.20),
     "CNYTN": ("Shenzhen Yantian", "China", "port", 0.40, 0.20),
     "CNCKG": ("Chongqing Rail Terminal", "China", "rail_hub", 0.25, 0.20),
@@ -80,11 +59,8 @@ HUBS = {
     "NLAMS": ("Amsterdam Schiphol Air Hub", "Netherlands", "air_hub", 0.20, 0.05),
 }
 
-# --------------------------------------------------------------------------
-# Leg mode characteristics
-#   base_delay_p: probability a leg runs late before hub/risk adjustments
-#   late_mean   : mean delay (days) when late
-# --------------------------------------------------------------------------
+# base_delay_p = chance a leg is late before hub risk is added
+# late_mean = average days late when it is late
 MODE = {
     "sea":   {"base_delay_p": 0.22, "late_mean": 5.5, "co2_g_per_tkm": 12},
     "rail":  {"base_delay_p": 0.15, "late_mean": 3.0, "co2_g_per_tkm": 25},
@@ -92,10 +68,7 @@ MODE = {
     "air":   {"base_delay_p": 0.06, "late_mean": 1.0, "co2_g_per_tkm": 600},
 }
 
-# --------------------------------------------------------------------------
-# Lane route templates. Each leg: (from, to, mode, distance_km, days, usd_per_feu, via_chokepoints)
-# usd_per_feu is the leg cost for one 40ft container (FEU) at base market level.
-# --------------------------------------------------------------------------
+# route options per lane; leg = (from, to, mode, km, days, usd per 40ft container, chokepoints)
 LANES = {
     ("CNSHA", "NLRTM"): [
         ("Direct via Suez/Red Sea", "Ocean - Direct", [
@@ -185,7 +158,7 @@ LANES = {
             ("NLRTM", "DEHAM", "rail", 480, 2, 700, [])]),
         ("Express Air Freight", "Air", [
             ("SGSIN", "DEHAM", "air", 10300, 2, 36000, [])]),
-        # Budget option: cheapest, but transships and still runs the Red Sea
+        # cheapest, but transships and still goes through the Red Sea
         ("Transship Colombo via Suez", "Ocean - Transshipment", [
             ("SGSIN", "LKCMB", "sea", 2700, 4, 300, []),
             ("LKCMB", "DEHAM", "sea", 13500, 23, 800, ["XXBAB", "EGSUZ"])]),
@@ -193,7 +166,7 @@ LANES = {
     ("VNSGN", "USLAX"): [
         ("Direct Transpacific", "Ocean - Direct", [
             ("VNSGN", "USLAX", "sea", 13200, 20, 2750, [])]),
-        # Transshipment undercuts the direct service on price, at the cost of reliability
+        # cheaper than direct but less reliable
         ("Transship Busan", "Ocean - Transshipment", [
             ("VNSGN", "KRPUS", "sea", 3600, 6, 450, []),
             ("KRPUS", "USLAX", "sea", 9600, 13, 1850, [])]),
@@ -229,7 +202,7 @@ LANES = {
 }
 
 CARGO_TYPES = {
-    # type: (value_per_feu_usd range, weight_t per FEU range, perishable, hazardous)
+    # type: (value per FEU, weight in t per FEU, perishable, hazardous)
     "general_merchandise": ((40_000, 90_000), (10, 18), False, False),
     "electronics":         ((250_000, 600_000), (6, 12), False, False),
     "automotive_parts":    ((80_000, 180_000), (14, 22), False, False),
@@ -248,18 +221,16 @@ def clip(x, lo, hi):
 
 
 def gen_leg(leg, market, season_cong):
-    """Instantiate a leg template with per-shipment noise."""
     frm, to, mode, dist, days, cost, chokes = leg
     hubs = [frm, to] + chokes
     cong = clip(sum(HUBS[h][3] for h in hubs) / len(hubs) + season_cong + rng.gauss(0, 0.05), 0, 1)
     geo = max(HUBS[h][4] for h in hubs)
     geo = clip(geo + rng.gauss(0, 0.03), 0, 1)
     m = MODE[mode]
-    # delay probability rises with congestion and geopolitical exposure
-    geo_w = 0.15 if mode in ("sea", "rail") else 0.03  # war/security risk mostly hits sea & rail corridors
+    geo_w = 0.15 if mode in ("sea", "rail") else 0.03  # conflict risk hits sea and rail more
     delay_p = clip(m["base_delay_p"] + (0.25 if mode in ("sea", "rail") else 0.10) * cong + geo_w * geo + rng.gauss(0, 0.02), 0.02, 0.85)
     leg_days = max(1, round(days * rng.uniform(0.95, 1.08), 1))
-    # war-risk / security surcharge on high-geo legs (USD per FEU)
+    # war-risk surcharge only on risky sea legs
     war_surcharge = round(WAR_RISK_SURCHARGE_MAX * max(0, geo - 0.5) * 2 * rng.uniform(0.8, 1.2)) if mode == "sea" else 0
     leg_cost = round(cost * market[mode] * rng.uniform(0.92, 1.10)) + war_surcharge
     return {
@@ -285,8 +256,8 @@ def aggregate_route(legs, n_feu, weight_t, cargo_value, ttype):
         p, d = lg["delay_probability"], lg["expected_delay_if_late_days"]
         p_on_time *= (1 - p)
         exp_delay += p * d
-        var += p * (2 * d * d) - (p * d) ** 2  # exponential delay magnitude
-    # each transshipment adds a missed-connection risk and 1.5 days dwell
+        var += p * (2 * d * d) - (p * d) ** 2
+    # each transshipment: 6% chance of a missed connection, 1.5 days waiting
     handling_p = 0.06 * n_trans
     p_delay = clip(1 - p_on_time * (1 - handling_p), 0, 0.95)
     dwell = 1.5 * n_trans
@@ -298,7 +269,7 @@ def aggregate_route(legs, n_feu, weight_t, cargo_value, ttype):
         sum(lg["congestion_index"] for lg in legs) / len(legs) * 0.5
     geo = max(lg["geopolitical_risk"] for lg in legs)
     co2 = sum(lg["distance_km"] * weight_t * MODE[lg["mode"]]["co2_g_per_tkm"] for lg in legs) / 1e6
-    # cargo damage / loss risk: more handling + high-risk zones
+    # damage risk goes up with handling and risky areas
     damage_p = clip(0.004 + 0.004 * n_trans + 0.01 * geo + (0.01 if ttype in ("perishable_food", "pharmaceuticals") and n_trans else 0), 0, 0.2)
     return {
         "num_legs": len(legs),
@@ -327,9 +298,7 @@ GOALS = ("cost", "time", "risk_averse", "balanced")
 MAX_ATTEMPTS = 2000
 
 
-
 def goal_picks(ship: dict, route_records: list[dict]) -> tuple[dict[str, str], int]:
-    """Run the real recommender for every goal; return the pick per goal and #feasible routes."""
     s = {**ship, "routes": [r["_nested"] for r in route_records]}
     picks = {g: recommend(s, WEIGHTS[g])["best"]["route"]["route_id"] for g in GOALS}
     feasible = sum(not check_feasibility(r, s) for r in s["routes"])
@@ -337,8 +306,8 @@ def goal_picks(ship: dict, route_records: list[dict]) -> tuple[dict[str, str], i
 
 
 def is_good(picks: dict[str, str], feasible: int, need_four: bool) -> bool:
-    """Lowest cost, Fastest and Lowest risk must each pick a different route
-    (and Balanced a fourth one when need_four), with >= 3 routes inside the limits."""
+    # cost, time and risk must pick different routes (balanced too if need_four),
+    # and at least 3 routes must fit the limits
     core = {picks["cost"], picks["time"], picks["risk_averse"]}
     if feasible < 3 or len(core) < 3:
         return False
@@ -353,8 +322,7 @@ def main():
     for i in range(N_SHIPMENTS):
         sid = f"SHP-{i + 1:03d}"
         lane = lanes[i % len(lanes)]  # 5 shipments per lane
-        # Re-draw the shipment until every goal leads to a different decision.
-        # Prefer all four goals distinct; fall back to the three single-objective goals.
+        # keep redrawing until the goals disagree (all 4 if possible, else 3)
         fallback = None
         for attempt in range(MAX_ATTEMPTS):
             ship, records, legs = make_shipment(sid, lane)
@@ -401,7 +369,6 @@ def main():
 
 
 def make_shipment(sid: str, lane: tuple[str, str]) -> tuple[dict, list[dict], list[dict]]:
-    """Draw one shipment with 4-5 route options and per-shipment deadline/budget."""
     origin, dest = lane
     start = date(2026, 11, 16)
     ttype = rng.choice(list(CARGO_TYPES))
@@ -410,7 +377,7 @@ def make_shipment(sid: str, lane: tuple[str, str]) -> tuple[dict, list[dict], li
     weight_t = round(n_feu * rng.uniform(wlo, whi), 1)
     value = round(n_feu * rng.uniform(vlo, vhi), -2)
     ship_date = start + timedelta(days=rng.randint(0, 60))
-    # peak / pre-Lunar-New-Year season (late Jan-Feb 2027) raises congestion & prices
+    # Lunar New Year peak: more congestion, higher prices
     peak = date(2027, 1, 10) <= ship_date <= date(2027, 2, 15)
     season_cong = 0.08 if peak else 0.0
     market = {
@@ -422,7 +389,7 @@ def make_shipment(sid: str, lane: tuple[str, str]) -> tuple[dict, list[dict], li
     priority = "time" if perishable and rng.random() < 0.6 else rng.choice(PRIORITIES)
 
     templates = LANES[(origin, dest)]
-    k = min(len(templates), rng.choice([4, 5]))  # every shipment gets 4-5 options
+    k = min(len(templates), rng.choice([4, 5]))
     chosen = rng.sample(templates, k)
 
     legs_out: list[dict] = []
@@ -432,7 +399,7 @@ def make_shipment(sid: str, lane: tuple[str, str]) -> tuple[dict, list[dict], li
         carrier = rng.choice(CARRIERS)
         legs = [gen_leg(lt, market, season_cong) for lt in legs_t]
         if hazardous and any(l["mode"] == "air" for l in legs):
-            # dangerous-goods air surcharge
+            # dangerous goods cost more by air
             for l in legs:
                 if l["mode"] == "air":
                     l["cost_usd_per_feu"] = round(l["cost_usd_per_feu"] * 1.35)
@@ -446,8 +413,7 @@ def make_shipment(sid: str, lane: tuple[str, str]) -> tuple[dict, list[dict], li
         nested_route["legs"] = legs
         rec["_nested"] = nested_route
 
-    # Per-shipment limits. Each is either loose (every route fits) or cuts the single
-    # most extreme route (priciest / slowest), so the constraint check still matters.
+    # limits: either every route fits, or only the most expensive / slowest one is cut
     exp_times = sorted(r["expected_transit_days"] for r in route_records)
     costs = sorted(r["total_cost_usd"] for r in route_records)
     if rng.random() < 0.5:

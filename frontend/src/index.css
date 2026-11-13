@@ -128,11 +128,9 @@
     @apply font-sans;
     }
 }
-/* ------------------------------------------------------------------
-   Data-viz tokens (validated reference palette: series-1 blue,
+/* Data-viz tokens (validated reference palette: series-1 blue,
    series-2 orange; status colors are reserved and always paired
-   with an icon + label).
-   ------------------------------------------------------------------ */
+   with an icon + label). */
 :root {
     --viz-series-1: #2a78d6;
     --viz-series-2: #eb6834;

@@ -48,7 +48,6 @@ def risk_index(route: dict[str, Any]) -> float:
     return GEO_RISK_SHARE * route["geopolitical_risk"] + (1 - GEO_RISK_SHARE) * route["congestion_risk"]
 
 
-# ---------------------------------------------------------------- step 1
 def check_feasibility(route: dict[str, Any], shipment: dict[str, Any]) -> list[str]:
     """Return the reasons a route is not allowed (empty list = feasible)."""
     reasons: list[str] = []
@@ -80,7 +79,6 @@ def limit_violation(route: dict[str, Any], shipment: dict[str, Any]) -> float:
     return late + over + forbidden
 
 
-# ---------------------------------------------------------------- step 2
 def build_metrics(route: dict[str, Any], shipment: dict[str, Any]) -> dict[str, float]:
     # expected_delay_days is already probability-weighted in the dataset
     late_cost = route["expected_delay_days"] * shipment["late_penalty_usd_per_day"]
@@ -93,7 +91,6 @@ def build_metrics(route: dict[str, Any], shipment: dict[str, Any]) -> dict[str, 
     }
 
 
-# ---------------------------------------------------------------- step 3
 def dominates(a: dict[str, float], b: dict[str, float]) -> bool:
     """a dominates b if a is <= on every criterion and strictly < on at least one."""
     return all(a[c] <= b[c] for c in CRITERIA) and any(a[c] < b[c] for c in CRITERIA)
@@ -104,7 +101,6 @@ def pareto_flags(metrics: list[dict[str, float]]) -> list[bool]:
     return [not any(dominates(metrics[j], metrics[i]) for j in range(n) if j != i) for i in range(n)]
 
 
-# ---------------------------------------------------------------- step 4
 def topsis(metrics: list[dict[str, float]], weights: dict[str, float]) -> np.ndarray:
     """TOPSIS with min-max normalisation.
 
@@ -125,7 +121,7 @@ def topsis(metrics: list[dict[str, float]], weights: dict[str, float]) -> np.nda
     return np.where(total == 0, 1.0, d_worst / safe_total)  # 1 = ideal, 0 = worst
 
 
-# ---------------------------------------------------------------- orchestrator
+#  orchestrator
 def recommend(shipment: dict[str, Any], weights: dict[str, float] | None = None) -> dict[str, Any]:
     if not shipment.get("routes"):
         raise ValueError(f"shipment {shipment.get('shipment_id')} has no route options")
